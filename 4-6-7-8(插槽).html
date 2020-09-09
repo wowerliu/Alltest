@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue插槽（slot）和作用域插槽 </title>
+    <script src='./vue.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/velocity-animate@2.0/velocity.min.js"></script>
+    <link rel="stylesheet"  href="./animate.min.css" />
+
+    <style>
+        .v-enter,.v-leave-to{
+            opacity:0
+        }
+        .v-enter-active,.v-leave-active{
+            transition: opacity 1s;
+        }   
+    </style>
+</head>
+<body>
+    <div id='root'>
+        <forchild >
+            <template slot-scope='prop'>
+                <li>{{prop.item}}</li>
+            </template>
+        </forchild>
+        <div>------------------------------------------------</div>
+        <!--Vue 插槽slot -->
+        <child>
+            <div slot='header'>header</div>
+            <div slot='footer'>footer</div>
+        </child>
+        <div>------------------------------------------------</div>
+        <!--Vue的动态组件component -->
+        <transition mode="out-in"><component :is='type'></component></transition>
+        <child-one v-if="type==='child-one'" ></child-one>
+        <child-two v-if="type==='child-two'"></child-two>
+        <button @click='handleButtonClick'>change</button>
+        <div>------------------------------------------------</div>
+        <button @click='hanldeButtonCss'>CSS动画测试</button>
+        <transition>
+            <child-two v-if="csstype"></child-two>
+        </transition>
+        <div>------------------------------------------------</div>
+        <button @click='hanldeButtonAnimate'>Animate动画测试(@keyframes)</button>
+        <!--进场时触发动画，需要在transition增加属性appear ，并增加appear-active-class -->
+        <!--当既有CSS动画又有keyframe动画时，动画时长不一致时，使用type确定以那个动画为准，如 type="transition" -->
+        <!-- 你就需要使用 type attribute 并设置 animation 或 transition 来明确声明你需要 Vue 监听的类型。 -->
+        <!--当既有CSS动画又有keyframe动画时，动画时长不一致时，也可认为使用 :duration="{enter:5000 ,leave:10000}"-->
+        <transition  
+            :duration="5000"
+            appear
+            enter-active-class="animated bounceInLeft"
+            leave-active-class="animated fadeOutDownBig"
+            appear-active-class="animated bounceInLeft"  
+       
+        >
+            <child-one v-if="animatedcsstype"></child-one>
+        </transition>
+        <div>------------------------------------------------</div>
+          <!-- JS动画钩子 -->
+        <button @click="hanldeButtonJSdonghua">JS动画测试</button>
+        <transition
+            @before-enter="beforeEnterJS"
+            @enter="enterJS"
+            @after-enter="afterenterJS"
+        >
+            <div v-if='jsdonghua'>你好呀</div>
+        </transition>       
+        <div>------------------------------------------------</div>
+        <!-- 多元素、组件动画过渡 -->
+      <button @click="hanldeButtonMore">JS多元素动画测试</button>
+      <transition mode="out-in" >
+          <div v-if='jsdonghuaMore'  key="hello">我来看下多元素动画过渡吧HELLO</div>
+          <div v-else key="bye">我来看下多元素动画过渡吧BYE</div>
+      </transition>        
+      <div>------------------------------------------------</div>
+     <!-- 利用插槽slot封装组件动画 -->
+     <button @click="hanldeButtonMode">利用插槽slot封装组件动画</button>
+
+     <childmode :show="show">
+         <div>我是通过插槽生成的</div>
+     </childmode>
+
+     <childmode :show="show">
+        <h1>我是通过插槽生成的</h1>
+    </childmode>
+      
+
+
+    </div>
+
+
+
+
+
+    <script>
+        Vue.component('forchild',{
+            data:function(){
+                return {
+                    list:[1,2,3,4]
+                }
+            },
+            template:`<div><ul>
+                    <slot v-for="item of list"   :item=item> </slot>
+                     </ul></div>`
+        })
+
+        Vue.component('child', {
+            template:`<div>
+                        <slot name='header'>
+                        <h1>默认标题</h1>
+                        </slot>
+                        <p>hello</p>
+                        <slot name='footer'>默认内容</slot>
+                    </div>  `
+            
+        })
+        Vue.component('childmode', {
+            props:["show"],
+            template:`<transition 
+                        @before-enter="JSbeforeEnter"
+                        @enter="JSEnter"
+                        @after-enter="JSafterEnter"
+                      >
+                        <slot v-if="show"> </slot>
+                    </transition>  `,
+            methods:{
+                JSbeforeEnter:function(el){
+                    el.style.color="red"
+                },
+                JSEnter:function(el,done){
+                    setTimeout(() => {
+                        el.style.color="green"  
+                    }, 2000);
+                    setTimeout(() => {
+                        done()
+                    }, 4000);
+                    
+                },
+                JSafterEnter:function(el){
+                    console.log("模板动画加载完成！")
+                }
+            }
+            
+        })
+
+        Vue.component('child-one', {
+            template:`<div v-once>
+                        child-one
+                    </div>  `
+            
+        })
+        Vue.component('child-two', {
+            template:`<div v-once>
+                        child-two
+                    </div>  `
+            
+        })
+        var vm = new Vue({
+            el:'#root',
+            data:{
+                type:'child-one',
+                csstype:true,
+                animatedcsstype:true,
+                jsdonghua:true,
+                jsdonghuaMore:false,
+                show:false
+            },
+            methods:{
+                hanldeButtonMore:function(){
+                    this.jsdonghuaMore=!this.jsdonghuaMore
+                },
+                handleButtonClick:function(){
+                    this.type= this.type==='child-one'? 'child-two':'child-one'
+                },
+                hanldeButtonCss:function(){
+                    this.csstype=!this.csstype
+                },
+                hanldeButtonAnimate:function(){
+                    this.animatedcsstype=!this.animatedcsstype
+                },
+                hanldeButtonJSdonghua:function(){
+                    this.jsdonghua=!this.jsdonghua
+                },
+                hanldeButtonMode:function(){
+                    this.show=!this.show
+                },
+                //JS动画钩子函数
+                beforeEnterJS:function(el){
+                    // el.style.color='red'
+                    el.style.opacity=0
+                },
+                enterJS:function(el,done){
+                    Velocity(el,{opacity:1},{duration:2000,complete:done})
+                    // setTimeout(() => {
+                    //     el.style.color='green'
+                    // }, 2000);
+                    // setTimeout(() => {
+                    //     done()
+                    // }, 4000);
+                },
+                afterenterJS:function(){
+                    // alert("动画执行完毕！")
+                    console.log("动画停止！")
+                }
+
+            }
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue模板语法</title>
+    <script src="./vue.js"></script>
+    
+</head>
+<body>
+    <div id="app">  
+        <div>{{name}}</div>
+        <div v-text="name"></div>
+        <div v-html="name"></div>
+    </div>
+    <script>
+        //插值表达式和v-text 的效果其实是差不多的
+       var vm = new Vue({
+           el:"#app",
+           data:{
+            name:"<h1>插值表达式</h1>"
+           }
+       })
+    </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>非父子组件之间传值（bus/总线/发布订阅模式/观察者模式）</title>
+<script src='./vue.js'></script>
+</head>
+<body>
+  <div id='root'>
+      <Child content="liu"></Child>
+      <Child content="zhen"></Child>
+  </div>
+  
+
+  <script>
+
+    Vue.prototype.bus=new Vue()
+
+    Vue.component('Child', {
+      data:function(){
+        return {
+          selfcontent:this.content
+        }
+      },
+      props:{
+        content:String
+      },
+      template:'<div @click="handleclick">{{selfcontent}}</div>',
+      methods:{
+        handleclick:function(){
+          this.bus.$emit('xixi',this.selfcontent)
+        }
+      },
+      mounted:function(){
+        var this_=this
+        this.bus.$on('xixi',function(msg){
+          this_.selfcontent=msg
+        })
+      }
+
+    })
+    
+   
+    var vm=new Vue({
+      el: '#root'
+    })
+
+  </script>
+</body>
+</html>

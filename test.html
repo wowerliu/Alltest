@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Vue HELLO -</title>
+<script src='./vue.js'></script>
+</head>
+<body>
+<div id="app">
+  <p>{{ message}}</p>
+  <input type="text" v-model="inputvalue" />
+  <button v-on:click="handlebtnclick">提交</button>
+  <ul> 
+    <li v-for="item in list">{{item}}</li>
+  </ul>
+</div>
+
+<script>
+var app=new Vue({
+  el: '#app',
+  data: {
+    message: 'Hello World!',
+    inputvalue:'',
+    list:[11,22]
+  },
+  methods:{
+    handlebtnclick:function(){
+      // alert(this.$data.inputvalue)
+      this.list.push(this.inputvalue)
+      this.inputvalue=''
+      
+    }
+  }
+})
+
+setTimeout(function() {
+   app.$data.message='Bye world!'
+ },2000)
+  
+
+
+</script>
+</body>
+</html>
